@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Media Lab Pro</title>
+<style>
+:root{
+--bg:#f5f7fb;
+--card:#ffffff;
+--text:#111;
+--accent:#22c55e;
+--accent-hover:#16a34a;
+--shadow:rgba(0,0,0,0.1);
+}
+body.dark{
+--bg:#0f172a;
+--card:#1e293b;
+--text:#e5e7eb;
+--accent:#22c55e;
+--accent-hover:#16a34a;
+--shadow:rgba(0,0,0,0.4);
+}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);transition:.3s;}
+nav{display:flex;justify-content:space-between;align-items:center;padding:15px 30px;background:var(--card);box-shadow:0 2px 12px var(--shadow);position:sticky;top:0;z-index:50;}
+nav .logo{font-weight:700;font-size:22px;display:flex;gap:10px;align-items:center;cursor:pointer;transition:.3s;}
+nav .logo:hover .cube{transform:rotate(45deg) scale(1.2);}
+.cube{width:16px;height:16px;background:var(--accent);transition:.3s;transform:rotate(45deg);}
+.menu span{margin-left:20px;cursor:pointer;padding:6px 10px;border-radius:6px;transition:.2s;}
+.menu span:hover{background:var(--accent);color:white;}
+.hero{text-align:center;padding:80px 20px;}
+.hero h1{font-size:2.5rem;margin-bottom:20px;}
+.search-box{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+.search-box input{padding:14px 20px;width:320px;max-width:90%;border-radius:30px;border:1px solid #ccc;box-shadow:0 2px 8px var(--shadow);transition:.3s;}
+.search-box input:focus{outline:none;border-color:var(--accent);}
+.search-box button{padding:14px 20px;border:none;background:var(--accent);color:white;border-radius:30px;cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:.3s;}
+.search-box button:hover{background:var(--accent-hover);}
+.tags{display:flex;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+.tags button{margin:5px;border:none;padding:8px 16px;border-radius:20px;background:linear-gradient(120deg,#22c55e,#16a34a);color:white;cursor:pointer;transition:.3s;}
+.tags button:hover{transform:scale(1.05);box-shadow:0 4px 12px var(--shadow);}
+.gallery{column-count:4;column-gap:16px;max-width:1400px;margin:auto;padding:20px;}
+@media(max-width:1200px){.gallery{column-count:3}}
+@media(max-width:900px){.gallery{column-count:2}}
+@media(max-width:600px){.gallery{column-count:1}}
+.card{background:var(--card);margin-bottom:16px;border-radius:12px;overflow:hidden;position:relative;transition:.3s;cursor:pointer;box-shadow:0 2px 12px var(--shadow);}
+.card:hover{transform:translateY(-4px);box-shadow:0 8px 20px var(--shadow);}
+.card img{width:100%;display:block;transition:.3s;}
+.card:hover img{transform:scale(1.05);}
+.overlay{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.65);color:white;padding:12px;font-size:14px;opacity:0;transition:.3s;border-top-left-radius:12px;border-top-right-radius:12px;}
+.card:hover .overlay{opacity:1;}
+.palette{display:flex;gap:4px;margin-top:6px;}
+.palette span{width:14px;height:14px;border-radius:3px;transition:.3s;}
+.tooltip{position:absolute;background:#333;color:white;padding:5px 8px;border-radius:6px;font-size:12px;pointer-events:none;opacity:0;transition:.2s;z-index:1000;}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:200;opacity:0;transition:.3s;}
+.modal.show{display:flex;opacity:1;}
+.modal-content{background:var(--card);border-radius:12px;max-width:90%;max-height:90%;overflow:auto;padding:15px;box-shadow:0 10px 30px var(--shadow);}
+.modal-content img{width:100%;border-radius:12px;display:block;margin-bottom:10px;}
+.modal-content h3{margin:5px 0;font-size:16px;}
+.modal-content .palette{margin-top:5px;margin-bottom:10px;}
+.modal-content button{padding:10px 16px;border:none;background:var(--accent);color:white;border-radius:6px;cursor:pointer;transition:.3s;}
+.modal-content button:hover{background:var(--accent-hover);}
+footer{background:#111;color:white;padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:10px;font-size:14px;}
+footer a{color:#9ae6b4;text-decoration:none;transition:.2s;}
+footer a:hover{color:#22c55e;}
+.admin-btn{position:fixed;bottom:20px;right:20px;background:var(--accent);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 12px var(--shadow);color:white;font-weight:bold;transition:.3s;}
+.admin-btn:hover{transform:scale(1.1);box-shadow:0 6px 18px var(--shadow);}
+.admin{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);padding:25px;width:400px;display:none;z-index:300;box-shadow:0 12px 48px var(--shadow);border-radius:12px;overflow-y:auto;max-height:90%;}
+.admin h3{margin:10px 0 5px;}
+.admin input,.admin textarea,.admin select{width:100%;margin-bottom:10px;padding:8px;border-radius:6px;border:1px solid #ccc;transition:.2s;}
+.admin input:focus,.admin textarea:focus,.admin select:focus{outline:none;border-color:var(--accent);}
+.close-admin{position:absolute;top:10px;right:10px;cursor:pointer;font-size:18px;font-weight:bold;color:red;}
+.blog-post{background:var(--card);padding:20px;margin:20px 0;border-radius:12px;box-shadow:0 2px 12px var(--shadow);transition:.3s;}
+.blog-post:hover{transform:translateY(-4px);box-shadow:0 8px 20px var(--shadow);}
+</style>
+</head>
+<body>
+<nav>
+<div class="logo" id="logoText"><div class="cube"></div>Media Lab</div>
+<div class="menu">
+<span onclick="showPage('home')">Home</span>
+<span onclick="showPage('blog')">Blog</span>
+<span onclick="showPage('about')">About</span>
+</div>
+</nav>
+
+<section id="home">
+<div class="hero">
+<h1 id="heroText">Discover Free Images</h1>
+<div class="search-box">
+<input id="search" placeholder="Search images">
+<button onclick="searchImages()">Search</button>
+</div>
+<div class="tags" id="keywordsContainer"></div>
+</div>
+<div class="gallery" id="gallery"></div>
+</section>
+
+<section id="blog" style="display:none"></section>
+<section id="about" style="display:none;padding:40px">
+<h2>About</h2>
+<p id="aboutText">Media Lab image search platform.</p>
+</section>
+
+<div id="modal" class="modal" onclick="if(event.target==this) this.style.display='none'">
+<div class="modal-content">
+<img id="modalImg">
+<h3 id="modalPhotographer"></h3>
+<div class="palette" id="modalPalette"></div>
+<button id="modalDownload">Download Original</button>
+</div>
+</div>
+
+<footer>
+Media Lab – Images powered by <a href="https://www.pexels.com" target="_blank">Pexels</a>
+<div id="customPages"></div>
+</footer>
+
+<div class="admin-btn" onclick="openAdmin()">✦</div>
+<div class="admin" id="admin">
+<div class="close-admin" onclick="closeAdmin()">✖</div>
+<h3>Admin Panel</h3>
+<input type="password" id="pass" placeholder="Password">
+<button onclick="login()">Login</button>
+<div id="panel" style="display:none">
+<h3>Logo Text</h3>
+<input id="logoInput" placeholder="Logo text">
+<h3>Hero Text</h3>
+<input id="heroInput" placeholder="Hero text">
+<h3>Theme</h3>
+<select id="themeSelect">
+<option value="default">Default</option>
+<option value="dark">Dark</option>
+<option value="glass">Liquid Glass</option>
+<option value="frosted">Frosted Touch</option>
+<option value="neo">Neo-Brutalism</option>
+<option value="cute">Cute-alism</option>
+<option value="skeuo">Light Skeuomorphism</option>
+</select>
+<h3>Keywords</h3>
+<input id="newKeyword" placeholder="Add keyword">
+<button onclick="addKeyword()">Add</button>
+<div id="adminKeywords"></div>
+<h3>Documentation Link</h3>
+<input id="docLink" placeholder="https://...">
+<h3>Blog</h3>
+<input id="blogTitle" placeholder="Title">
+<textarea id="blogContent"></textarea>
+<button onclick="addBlog()">Add Post</button>
+<h3>Privacy</h3>
+<textarea id="editPrivacy"></textarea>
+<h3>Terms</h3>
+<textarea id="editTerms"></textarea>
+<h3>License</h3>
+<textarea id="editLicense"></textarea>
+<h3>Custom Page</h3>
+<input id="pageTitle" placeholder="Page title">
+<textarea id="pageContent"></textarea>
+<button onclick="addPage()">Add Page</button>
+<button onclick="saveChanges()">Save Changes</button>
+</div>
+</div>
+
+<script>
+const API_KEY="cXjul4VYi0lG11QT872TbfIrNcbJCnz8sJRftnu0Dwdo2qAskShncK2g";
+const API="https://api.pexels.com/v1/search";
+let page=1, query="";
+
+// NAV
+function showPage(id){
+document.querySelectorAll("section").forEach(s=>s.style.display="none");
+document.getElementById(id).style.display="block";
+}
+
+// QUICK SEARCH
+function quick(q){search.value=q; searchImages();}
+async function searchImages(){query=search.value; page=1; gallery.innerHTML=""; load();}
+async function load(){
+const res=await fetch(API+"?query="+query+"&per_page=20&page="+page,{headers:{Authorization:API_KEY}});
+const data=await res.json();
+render(data.photos);
+page++;
+}
+
+// RENDER GALLERY + TOOLTIP + LAZY LOAD
+function render(photos){
+photos.forEach(p=>{
+let div=document.createElement("div");
+div.className="card";
+div.innerHTML=`
+<img data-src="${p.src.medium}" alt="${p.photographer}" title="Photo by ${p.photographer}" onclick="viewModal('${p.src.large}','${p.photographer}','${p.photographer_url}','${p.src.original}')">
+<div class="overlay">
+Photo by ${p.photographer}<br>
+<button onclick="download('${p.src.original}')">Download</button>
+<div class="palette"></div>
+</div>`;
+gallery.appendChild(div);
+extract(p.src.small,div.querySelector(".palette"));
+});
+const lazyImages=document.querySelectorAll('img[data-src]');
+const observer=new IntersectionObserver((entries, obs)=>{
+entries.forEach(entry=>{
+if(entry.isIntersecting){
+entry.target.src=entry.target.dataset.src;
+obs.unobserve(entry.target);
+}
+});
+},{rootMargin:"0px 0px 50px 0px"});
+lazyImages.forEach(img=>observer.observe(img));
+}
+
+// COLOR PALETTE
+function extract(src,el){
+const img=new Image();
+img.crossOrigin="Anonymous";
+img.onload=function(){
+const c=document.createElement("canvas");
+const x=c.getContext("2d");
+c.width=30;c.height=30;
+x.drawImage(img,0,0,30,30);
+let d=x.getImageData(0,0,30,30).data;
+for(let i=0;i<5;i++){
+let r=d[i*40],g=d[i*40+1],b=d[i*40+2];
+let s=document.createElement("span");
+s.style.background=`rgb(${r},${g},${b})`;
+el.appendChild(s);
+}
+};
+img.src=src;
+}
+
+// MODAL
+const modal=document.getElementById("modal");
+const modalImg=document.getElementById("modalImg");
+const modalPhotographer=document.getElementById("modalPhotographer");
+const modalPalette=document.getElementById("modalPalette");
+const modalDownload=document.getElementById("modalDownload");
+function viewModal(src, photographer, photographer_url, original){
+modal.style.display="flex";
+modalImg.src=src;
+modalPhotographer.innerHTML=`Photo by <a href="${photographer_url}" target="_blank">${photographer}</a>`;
+modalPalette.innerHTML="";
+extract(src,modalPalette);
+modalDownload.onclick=()=>download(original);
+}
+
+// DOWNLOAD
+function download(url){
+fetch(url).then(r=>r.blob()).then(b=>{
+let a=document.createElement("a");
+a.href=URL.createObjectURL(b);
+a.download="image.jpg";
+a.click();
+});
+}
+
+// ADMIN
+const admin=document.getElementById("admin");
+const panel=document.getElementById("panel");
+const passInput=document.getElementById("pass");
+const logoInput=document.getElementById("logoInput");
+const heroInput=document.getElementById("heroInput");
+const themeSelect=document.getElementById("themeSelect");
+const docLinkInput=document.getElementById("docLink");
+const adminKeywordsDiv=document.getElementById("adminKeywords");
+const newKeywordInput=document.getElementById("newKeyword");
+
+// OPEN/CLOSE
+function openAdmin(){admin.style.display="block";}
+function closeAdmin(){admin.style.display="none";}
+
+// LOGIN
+function login(){
+if(passInput.value==="GAMESAGAR"){panel.style.display="block"; alert("Logged in!"); loadSettings();}
+else alert("Wrong password");
+}
+
+// ADD KEYWORD
+function addKeyword(){
+let kw=newKeywordInput.value; if(!kw) return;
+let btn=document.createElement("button"); btn.innerText=kw; btn.onclick=()=>{btn.remove(); saveKeywords();};
+adminKeywordsDiv.appendChild(btn); newKeywordInput.value="";
+saveKeywords();
+}
+function saveKeywords(){
+let kws=[]; adminKeywordsDiv.querySelectorAll("button").forEach(k=>kws.push(k.innerText));
+localStorage.setItem("keywords",JSON.stringify(kws));
+renderKeywords();
+}
+function renderKeywords(){
+let kws=JSON.parse(localStorage.getItem("keywords")||"[]");
+keywordsContainer.innerHTML=""; kws.forEach(k=>{
+let btn=document.createElement("button"); btn.innerText=k; btn.onclick=()=>quick(k);
+keywordsContainer.appendChild(btn);
+});
+}
+renderKeywords();
+
+// SAVE CHANGES
+function saveChanges(){
+if(logoInput.value){document.getElementById("logoText").innerText=logoInput.value; localStorage.setItem("logoText", logoInput.value);}
+if(heroInput.value){document.getElementById("heroText").innerText=heroInput.value; localStorage.setItem("heroText", heroInput.value);}
+if(docLinkInput.value) localStorage.setItem("docLink", docLinkInput.value);
+localStorage.setItem("theme",themeSelect.value);
+applyTheme(themeSelect.value);
+alert("Changes saved!");
+}
+
+// APPLY THEME
+function applyTheme(t){
+document.body.className=""; document.body.style.background=""; document.body.style.backdropFilter="";
+switch(t){
+case "dark": document.body.classList.add("dark"); break;
+case "glass": document.body.style.backdropFilter="blur(12px)"; break;
+case "frosted": document.body.style.backdropFilter="blur(6px)"; break;
+case "neo": document.body.style.background="#ffdde1"; break;
+case "cute": document.body.style.background="#ffe4e1"; break;
+case "skeuo": document.body.style.background="#f0e68c"; break;
+}
+}
+
+// BLOG
+const blogTitle=document.getElementById("blogTitle");
+const blogContent=document.getElementById("blogContent");
+function addBlog(){
+let posts=JSON.parse(localStorage.getItem("blog")||"[]");
+posts.push({title:blogTitle.value,content:blogContent.value,date:new Date().toDateString()});
+localStorage.setItem("blog",JSON.stringify(posts));
+renderBlog();
+blogTitle.value=""; blogContent.value="";
+}
+function renderBlog(){
+let posts=JSON.parse(localStorage.getItem("blog")||"[]");
+blog.innerHTML="";
+posts.forEach(p=>{
+let d=document.createElement("div"); d.className="blog-post";
+d.innerHTML=`<h3>${p.title}</h3><p>${p.date}</p><p>${p.content}</p>`;
+blog.appendChild(d);
+});
+}
+renderBlog();
+
+// CUSTOM PAGES
+const pageTitleInput=document.getElementById("pageTitle");
+const pageContentInput=document.getElementById("pageContent");
+function addPage(){
+let pages=JSON.parse(localStorage.getItem("pages")||"[]");
+pages.push({title:pageTitleInput.value,content:pageContentInput.value});
+localStorage.setItem("pages",JSON.stringify(pages));
+renderPages();
+pageTitleInput.value=""; pageContentInput.value="";
+}
+function renderPages(){
+let pages=JSON.parse(localStorage.getItem("pages")||"[]");
+customPages.innerHTML="";
+pages.forEach(p=>{
+let a=document.createElement("a"); a.innerText=p.title; a.href="#"; a.onclick=()=>showCustomPage(p);
+customPages.appendChild(a);
+});
+}
+function showCustomPage(p){
+let s=document.createElement("section"); s.style.padding="40px";
+s.innerHTML=`<h2>${p.title}</h2><p>${p.content}</p>`; document.body.appendChild(s);
+}
+render
